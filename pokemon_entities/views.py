@@ -92,6 +92,11 @@ def show_pokemon(request, pokemon_id):
                 'pokemon_id': requested_pokemon.previous_evolution.id,
                 'img_url': request.build_absolute_uri(requested_pokemon.previous_evolution.image.url)
                 } if requested_pokemon.id != 1 else '',
+            'next_evolution': {
+                'title_ru': requested_pokemon.next_evolution.first().title,
+                'pokemon_id': requested_pokemon.next_evolution.first().id,
+                'img_url': request.build_absolute_uri(requested_pokemon.next_evolution.first().image.url)
+                } if requested_pokemon.id != 3 else '',
             }
 
     return render(request, 'pokemon.html', context={
