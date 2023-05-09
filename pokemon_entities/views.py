@@ -1,6 +1,6 @@
 import folium
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import PokemonEntity, Pokemon
 from django.utils.timezone import localtime
 
@@ -28,8 +28,9 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 def show_all_pokemons(request):
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
+    current_time = localtime()
     pokemon_entities = PokemonEntity.objects.filter(
-        appeared_at__lt=localtime(), disappeared_at__gt=localtime()
+        appeared_at__lt=current_time, disappeared_at__gt=current_time
         )
     for pokemon_entity in pokemon_entities:
         add_pokemon(
@@ -54,8 +55,8 @@ def show_all_pokemons(request):
 
 
 def show_pokemon(request, pokemon_id):
-    requested_pokemon = Pokemon.objects.get(id=int(pokemon_id))
-    requested_pokemon_entities = requested_pokemon.pokemon_entities.all()
+    requested_pokemon = get_object_or_404(Pokemon, id=int(pokemon_id))
+    requested_pokemon_entities = requested_pokemon.entities.all()
 
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     for pokemon_entity in requested_pokemon_entities:
@@ -76,12 +77,12 @@ def show_pokemon(request, pokemon_id):
                 'title_ru': requested_pokemon.previous_evolution.title,
                 'pokemon_id': requested_pokemon.previous_evolution.id,
                 'img_url': request.build_absolute_uri(requested_pokemon.previous_evolution.image.url)
-                } if requested_pokemon.id != 1 else '',
+                } if requested_pokemon.title != 'Бульбазавр' else '',
             'next_evolution': {
-                'title_ru': requested_pokemon.next_evolution.first().title,
-                'pokemon_id': requested_pokemon.next_evolution.first().id,
-                'img_url': request.build_absolute_uri(requested_pokemon.next_evolution.first().image.url)
-                } if requested_pokemon.id != 3 else '',
+                'title_ru': requested_pokemon.next_evolutions.first().title,
+                'pokemon_id': requested_pokemon.next_evolutions.first().id,
+                'img_url': request.build_absolute_uri(requested_pokemon.next_evolutions.first().image.url)
+                } if requested_pokemon.title != 'Венузавр' else '',
             }
 
     return render(request, 'pokemon.html', context={

@@ -11,16 +11,16 @@ class Pokemon(models.Model):
                                            verbose_name='Из кого эволюционировал',
                                            on_delete=models.SET_NULL,
                                            null=True, blank=True,
-                                           related_name='next_evolution')
+                                           related_name='next_evolutions')
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
 
 class PokemonEntity(models.Model):
     lat = models.FloatField('Широта', null=True, blank=True)
     lon = models.FloatField('Долгота', null=True, blank=True)
-    pokemon = models.ForeignKey(Pokemon, related_name='pokemon_entities',
+    pokemon = models.ForeignKey(Pokemon, related_name='entities',
                                 on_delete=models.CASCADE)
     appeared_at = models.DateTimeField('Время появления', null=True, blank=True)
     disappeared_at = models.DateTimeField('Время исчезновения', null=True, blank=True)
@@ -29,3 +29,6 @@ class PokemonEntity(models.Model):
     attack = models.IntegerField('Атака', null=True, blank=True)
     defense = models.IntegerField('Защита', null=True, blank=True)
     stamina = models.IntegerField('Выносливость', null=True, blank=True)
+
+    def __str__(self):
+        return self.pokemon.title
