@@ -87,7 +87,12 @@ def show_pokemon(request, pokemon_id):
             'title_en': requested_pokemon.title_en,
             'title_jp': requested_pokemon.title_jp,
             'description': requested_pokemon.description,
-        }
+            'previous_evolution': {
+                'title_ru': requested_pokemon.previous_evolution.title,
+                'pokemon_id': requested_pokemon.previous_evolution.id,
+                'img_url': request.build_absolute_uri(requested_pokemon.previous_evolution.image.url)
+                } if requested_pokemon.id != 1 else '',
+            }
 
     return render(request, 'pokemon.html', context={
         'map': folium_map._repr_html_(), 'pokemon': pokemon
