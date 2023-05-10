@@ -26,6 +26,24 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
     ).add_to(folium_map)
 
 
+def get_prev_evolution(request, pokemon):
+    if prev_evolution := pokemon.previous_evolution:
+        return {
+            'title_ru': prev_evolution.title,
+            'pokemon_id': prev_evolution.id,
+            'img_url': request.build_absolute_uri(prev_evolution.image.url)
+            }
+
+
+def get_next_evolution(request, pokemon):
+    if next_evolution := pokemon.next_evolutions.first():
+        return {
+            'title_ru': next_evolution.title,
+            'pokemon_id': next_evolution.id,
+            'img_url': request.build_absolute_uri(next_evolution.image.url)
+            }
+
+
 def show_all_pokemons(request):
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     current_time = localtime()
@@ -73,16 +91,8 @@ def show_pokemon(request, pokemon_id):
             'title_en': requested_pokemon.title_en,
             'title_jp': requested_pokemon.title_jp,
             'description': requested_pokemon.description,
-            'previous_evolution': {
-                'title_ru': requested_pokemon.previous_evolution.title,
-                'pokemon_id': requested_pokemon.previous_evolution.id,
-                'img_url': request.build_absolute_uri(requested_pokemon.previous_evolution.image.url)
-                } if requested_pokemon.previous_evolution else '',
-            'next_evolution': {
-                'title_ru': requested_pokemon.next_evolutions.first().title,
-                'pokemon_id': requested_pokemon.next_evolutions.first().id,
-                'img_url': request.build_absolute_uri(requested_pokemon.next_evolutions.first().image.url)
-                } if requested_pokemon.next_evolutions.first() else '',
+            'previous_evolution': get_prev_evolution(request, requested_pokemon),
+            'next_evolution': get_next_evolution(request, requested_pokemon),
             }
 
     return render(request, 'pokemon.html', context={
